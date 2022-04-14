@@ -10,14 +10,25 @@ class ChessPiece {
 
     }
 
-    setSquare() {
+    setSquare(newSquare) {
         // Assign piece to a specific square.
-    }
+        if (newSquare === undefined) {
+            this.squareThisPieceIsOn = newSquare;
+            return
+        }
 
-    getSquare() {
-        // Get the current square that a piece is occupying.
-        // undefined if the piece is not on the board.
-    }
+        if (this.squareThisPieceIsOn === undefined) {
+            this.squareThisPieceIsOn = newSquare;
+            newSquare.setPiece(this);
+        }
 
-    
+        const isNewSquareDifferent = this.squareThisPieceIsOn.x != newSquare.x || this.squareThisPieceIsOn.y != newSquare.y;
+
+        if (isNewSquareDifferent) {
+            this.squareThisPieceIsOn = newSquare;
+            newSquare.setPiece(this);
+        }
+    }
 }
+
+export default ChessPiece
