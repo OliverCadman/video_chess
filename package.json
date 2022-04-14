@@ -10,9 +10,11 @@
     "konva": "^8.3.5",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-konva": "^18.0.0-0",
     "react-scripts": "5.0.1",
     "simple-peer": "^9.11.1",
     "socket.io": "^4.4.1",
+    "use-sound": "^4.0.1",
     "uuid": "^8.3.2",
     "web-vitals": "^2.1.4"
   },
