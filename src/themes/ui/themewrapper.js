@@ -9,7 +9,7 @@ export default function ThemeContextWrapper (props) {
 
         Then, return the ThemeContextWrapper as a ThemeContext.Provider
     */
-    const [theme, setTheme] = React.useState(themes.light);
+    const [theme, setTheme] = React.useState(themes.dark);
 
     function changeTheme(theme) {
         setTheme(theme);
@@ -37,7 +37,7 @@ export default function ThemeContextWrapper (props) {
                     document.querySelector("button").classList.add("dark-button");
                 }
             default:
-                document.body.classList.remove("light-content")
+                document.body.classList.add("dark-content")
                 break
         }
     }, [theme]);

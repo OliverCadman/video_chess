@@ -20,22 +20,28 @@ const DarkModeSwitch = () => {
     ThemeContext's 'changeTheme()' function, passing in
     the updated state as argument.
   */
-  const [darkMode, setDarkMode] = React.useState(false);
+  const [darkMode, setDarkMode] = React.useState(true);
   return (
     <>
       <StyledFlexWrapper>
-      <ThemeContext.Consumer>
-      {({changeTheme}) => (
-        <Form.Check
-          type="switch"
-          onClick={() => {
-            console.log("click")
-            setDarkMode(!darkMode)
-            changeTheme(darkMode ? themes.light : themes.dark)
-          }}
+        <DarkModeIcon
+          style={darkMode ? { color: "#e7782d", fontSize: "2rem", marginRight: ".5rem" } : { color: "aaa", fontSize: "2rem", marginRight: ".5rem" }}
         />
-      )}
-      </ThemeContext.Consumer>
+        <ThemeContext.Consumer>
+          {({ changeTheme }) => (
+            <Form.Check
+              type="switch"
+              onClick={() => {
+                console.log("click");
+                setDarkMode(!darkMode);
+                changeTheme(darkMode ? themes.light : themes.dark);
+              }}
+            />
+          )}
+        </ThemeContext.Consumer>
+        <LightModeIcon
+          style={darkMode ? { color: "#aaa", fontSize: "2rem" } : { color: "#e7782d", fontSize: "2rem" }}
+        />
       </StyledFlexWrapper>
     </>
   );

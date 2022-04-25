@@ -319,7 +319,7 @@ const ChessGameWrapper = (props) => {
   return (
     <React.Fragment>
       {opponentDidJoinTheGame ? (
-        <Container>
+        <Container style={{marginTop: "3rem"}}>
           <Row>
             <Col md={3} style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
                 <h4>
