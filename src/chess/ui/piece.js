@@ -16,27 +16,36 @@ const Piece = (props) => {
    *
    * Make the piece draggable.
    */
+
   const colorChoice = props.isWhite ? 0 : 1;
-  const [image] = useImage(props.imgUrls[colorChoice]);
+  const [image, status] = useImage(props.imageUrls[colorChoice]);
   const isDragged = props.id === props.draggedPieceTargetId;
 
-  const canThisPieceEvenBeMovedByThisPlayer = props.isWhite === props.thisPlayerColorIsWhite;
-  const isItThatPlayersTurn = props.playerTurnToMoveIsWhite === props.thisPlayerColorIsWhite;
+  const canThisPieceEvenBeMovedByThisPlayer =
+    props.isWhite === props.thisPlayerColorIsWhite;
+  const isItThatPlayersTurn =
+    props.playerTurnToMoveIsWhite === props.thisPlayerColorIsWhite;
 
   const isWhiteKingInCheck = props.id === "wk1" && props.whiteKingInCheck;
   const isBlackKingInCheck = props.id === "bk1" && props.blackKingInCheck;
 
-
-  return <Image image={image}
-                x = {props.x - 90}
-                y = {props.y - 90}
-                draggable = {canThisPieceEvenBeMovedByThisPlayer && isItThatPlayersTurn}
-                width = {isDragged ? 75 : 60}
-                height = {isDragged ? 75 : 60}
-                onDragStart = {props.onDragStart}
-                onDragEnd = {props.onDragEnd}
-                fill = {(isWhiteKingInCheck && "red") || (isBlackKingInCheck) && "red"}
-                id = {props.id} />;
+  return (
+    <Image
+      image={image}
+      x={props.x - 65}
+      y={props.y - 65}
+      draggable={canThisPieceEvenBeMovedByThisPlayer && isItThatPlayersTurn}
+      width={isDragged ? 100 : 82}
+      height={isDragged ? 100 : 82}
+      onDragStart={props.onDragStart}
+      onDragEnd={props.onDragEnd}
+      fill={
+        (isWhiteKingInCheck ? "rgba(225, 45, 45, 0.5)" : "") ||
+        (isBlackKingInCheck ? "rgba(225, 45, 45, 0.5)" : "")
+      }
+      id={props.id}
+    />
+  );
 };
 
 export default Piece;

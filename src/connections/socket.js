@@ -1,16 +1,14 @@
 import io from "socket.io-client";
 
-const URL = "http://localhost:3001/";
+const URL = "http://localhost:3000/";
 
 const socket = io(URL);
 
 let mySocketId;
-socket.on("connection", (res) => {
-    console.log("hello");
+socket.on("connect", () => {
+    console.log(`Connected with ID ${socket.id}`);
 })
 socket.on("createNewGame", statusUpdate => {
-    console.log("New game");
-    console.log("hello")
     mySocketId = statusUpdate.mySocketId;
 })
 

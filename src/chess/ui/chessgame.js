@@ -1,12 +1,16 @@
 import React from "react";
 import Game from "../model/chess";
-import  Square  from "../model/square";
+import Square from "../model/square";
 import { Stage, Layer } from "react-konva";
-import  Board  from "../assets/chess_board.jpg";
+import Board from "../assets/chess_board.jpg";
 import Piece from "./piece";
 import piece_styles from "./piece_styles";
 import { useParams } from "react-router-dom";
 import { ColorContext } from "../../context/colorcontext";
+import CheckMateAlertWrapper from "./checkmate_alert";
+
+const cloneDeep = require("clone-deep");
+
 const socket = require("../../connections/socket").socket;
 
 class ChessGame extends React.Component {
@@ -16,6 +20,7 @@ class ChessGame extends React.Component {
     playerTurnToMoveIsWhite: true,
     whiteKingInCheck: false,
     blackKingInCheck: false,
+    checkmate: false,
   };
 
   componentDidMount() {
@@ -32,6 +37,10 @@ class ChessGame extends React.Component {
           playerTurnToMoveIsWhite: !move.playerColorThatJustMovedIsWhite,
         });
       }
+    });
+
+    socket.on("restartGame", () => {
+      this.reset();
     });
   }
 
@@ -83,9 +92,8 @@ class ChessGame extends React.Component {
 
     if (isMyMove) {
       socket.emit("new move", {
-        nextPlayerColorToMove: !this.state.gameState.thisPlayersColorIsWhite,
-        playerColorThatJustMovedIsWhite:
-          this.state.gameState.thisPlayersColorIsWhite,
+        nextPlayerColorToMove: !this.state.gameState.playerIsWhite,
+        playerColorThatJustMovedIsWhite: this.state.gameState.playerIsWhite,
         selectedId: selectedId,
         finalPosition: finalPosition,
         gameId: this.props.gameId,
@@ -101,9 +109,13 @@ class ChessGame extends React.Component {
     });
 
     if (blackCheckmated) {
-      alert("White won by checkmate");
+      this.setState({
+        checkmate: true,
+      });
     } else if (whiteCheckmated) {
-      alert("Black won by checkmate");
+      this.setState({
+        checkmate: true,
+      });
     }
   };
 
@@ -111,8 +123,8 @@ class ChessGame extends React.Component {
     const currentGame = this.state.gameState;
     const currentBoard = currentGame.getBoard();
     const finalPosition = this.inferCoord(
-      e.target.x() + 90,
-      e.target.y() + 90,
+      e.target.x() + 100,
+      e.target.y() + 100,
       currentBoard
     );
     const selectedId = this.state.draggedPieceTargetId;
@@ -170,28 +182,47 @@ class ChessGame extends React.Component {
     return hashmap[shortestDistance];
   };
 
+  reset() {
+    /*
+      Reset the board if a user chooses to play a new game.
+
+      Re-initialize gameState and model.
+    */
+    this.setState({
+      gameState: new Game(this.props.color),
+      playerTurnToMoveIsWhite: true,
+      checkmate: false,
+    });
+
+    this.state.gameState.restartGame();
+  }
+
   render() {
     return (
       <React.Fragment>
         <div
           style={{
             backgroundImage: `url(${Board})`,
+            // backgroundRepeat: "no-repeat",
+            // backgroundSize: "contain",
             width: "720px",
             height: "720px",
+            justifyContent: "center",
           }}
         >
           <Stage width={720} height={720}>
             <Layer>
-              {this.state.gameState.getBoard().map((row) => {
+              {this.state.gameState.getBoard().map((row, index) => {
                 return (
                   <React.Fragment>
-                    {row.map((square) => {
+                    {row.map((square, index) => {
                       if (square.isOccupied()) {
                         return (
                           <Piece
+                            key={index}
                             x={square.getCanvasCoordinates()[0]}
                             y={square.getCanvasCoordinates()[1]}
-                            imageURLs={piece_styles[square.getPiece().name]}
+                            imageUrls={piece_styles[square.getPiece().name]}
                             isWhite={square.getPiece().color === "white"}
                             draggedPieceTargetId={
                               this.state.draggedPieceTargetId
@@ -199,7 +230,7 @@ class ChessGame extends React.Component {
                             onDragStart={this.startDragging}
                             onDragEnd={this.endDragging}
                             id={square.getPieceIdOnThisSquare()}
-                            thisPlayersColorIsWhite={this.props.color}
+                            thisPlayerColorIsWhite={this.props.color}
                             playerTurnToMoveIsWhite={
                               this.state.playerTurnToMoveIsWhite
                             }
@@ -215,6 +246,12 @@ class ChessGame extends React.Component {
               })}
             </Layer>
           </Stage>
+          {this.state.checkmate && (
+            <CheckMateAlertWrapper
+              checkmate={this.state.checkmate}
+              gameId={this.props.gameId}
+            />
+          )}
         </div>
       </React.Fragment>
     );
@@ -222,12 +259,14 @@ class ChessGame extends React.Component {
 }
 
 const ChessGameWrapper = (props) => {
-  const domainName = "http://localhost:3000";
+  const domainName = "http://localhost:8000";
   const color = React.useContext(ColorContext);
-  const { gameId } = useParams();
-  const [opponentSocketId, setOpponentSocketId] = React.useState("");
+  console.log("color", color);
+  const { gameid } = useParams();
+
   const [opponentDidJoinTheGame, setOpponentDidJoinTheGame] =
     React.useState(false);
+  console.log("OPPONENT JOINED GAME", opponentDidJoinTheGame);
   const [opponentUserName, setOpponentUserName] = React.useState("");
   const [gameSessionDoesNotExist, setGameSessionDoesNotExist] =
     React.useState(false);
@@ -241,8 +280,6 @@ const ChessGameWrapper = (props) => {
     });
 
     socket.on("status", (statusUpdate) => {
-      console.log(statusUpdate);
-      alert(statusUpdate);
       if (statusUpdate === "This game session doesn't exist");
       setGameSessionDoesNotExist(true);
     });
@@ -253,36 +290,36 @@ const ChessGameWrapper = (props) => {
         setOpponentUserName(opponentUserName);
         setOpponentDidJoinTheGame(true);
       } else {
-        socket.emit("request username", gameId);
+        socket.emit("request username", gameid);
       }
     });
 
     socket.on("give userName", (socketId) => {
       if (socket.id !== socketId) {
-        console.log("give userName stage: " + props.myUsername);
-        socket.emit("received username: ", {
-          userName: props.myUsername,
-          gameId: gameId,
+        console.log("give userName stage: " + props.myUserName);
+        socket.emit("received username", {
+          userName: props.myUserName,
+          gameId: gameid,
         });
       }
     });
 
     socket.on("get Opponent UserName", (data) => {
+      console.log("getting opponent's username...");
       if (socket.id !== data.socketId) {
         setOpponentUserName(data.userName);
-        setOpponentSocketId(data.socketId);
         setOpponentDidJoinTheGame(true);
       }
     });
-  }, []);
+  }, [gameid, props.myUserName]);
 
   return (
     <React.Fragment>
       {opponentDidJoinTheGame ? (
         <div>
           <h4>Opponent: {opponentUserName}</h4>
-          <div style={{ display: "flex " }}>
-            <ChessGame gameId={gameId} color={color.didRedirect}></ChessGame>
+          <div style={{ display: "flex ", justifyContent: "center" }}>
+            <ChessGame gameId={gameid} color={color.didRedirect}></ChessGame>
           </div>
           <h4>You: {props.myUserName}</h4>
         </div>
@@ -312,11 +349,11 @@ const ChessGameWrapper = (props) => {
               height: "30px",
             }}
             onFocus={(event) => {
-              console.log("sd");
               event.target.select();
             }}
-            value={domainName + "/game/" + gameId}
+            value={domainName + "/game/" + gameid}
             type="text"
+            readOnly
           ></textarea>
           <br />
           <h1 style={{ textAlign: "center", marginTop: "100px" }}>

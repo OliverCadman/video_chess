@@ -4,7 +4,7 @@ class Square {
         individual co-ordinates, along with canvas
         co-ordinates.
     */
-    constructor(x, y, canvasCoordinates, pieceOnThisSquare) {
+    constructor(x, y, pieceOnThisSquare, canvasCoordinates) {
         this.x = x; // x-coordinate
         this.y = y; // y-coordinate
         this.canvasCoordinates = canvasCoordinates; // in pixels
@@ -13,6 +13,7 @@ class Square {
 
     setPiece(newPiece) {
         if (newPiece === null && this.pieceOnThisSquare === null) {
+            console.log("hello")
             return;
         } else if (newPiece === null) {
             // If a piece is captured
@@ -26,7 +27,7 @@ class Square {
             this.pieceOnThisSquare = newPiece;
             newPiece.setSquare(this);
         } else {
-            return "You can't capture your own piece dickhead"
+            return "user tried to capture their own piece";
         }
         
      }
@@ -41,7 +42,7 @@ class Square {
 
      getPieceIdOnThisSquare() {
          if (this.pieceOnThisSquare === null) {
-             return "no piece on this square";
+             return "empty";
          }
          return this.pieceOnThisSquare.id
      }

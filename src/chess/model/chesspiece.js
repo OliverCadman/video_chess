@@ -2,7 +2,7 @@ class ChessPiece {
     /*
         Define the individual chess piece.
     */
-    constructor(name, id, isAttacked, color) {
+    constructor(name, isAttacked, color, id) {
         this.name = name // string;
         this.id = id // string;
         this.isAttacked = isAttacked // bool;
@@ -28,6 +28,10 @@ class ChessPiece {
             this.squareThisPieceIsOn = newSquare;
             newSquare.setPiece(this);
         }
+    }
+
+    getSquare() {
+        return this.squareThisPieceIsOn;
     }
 }
 

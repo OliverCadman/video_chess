@@ -6,8 +6,12 @@ class Game {
   constructor(playerIsWhite) {
     this.playerIsWhite = playerIsWhite; // bool;
     this.chessBoard = this.makeStartingBoard();
+
+    // chess.js - Validates moves and detects check/checkmate/draw/stalemate.
     this.chess = new Chess();
 
+
+    /* Define the co-ordinates of the board relative to player color's perspective */
     this.fromCoordinates = playerIsWhite
       ? {
           0: 8,
@@ -100,40 +104,47 @@ class Game {
   }
 
   getBoard() {
+    // Return the current chess board.
     return this.chessBoard;
   }
 
-  initStartingBoard(newBoard) {
+  setBoard(newBoard) {
+    // Update the state of the board when an 
     this.chessBoard = newBoard;
   }
 
   movePiece(pieceId, to, isMyMove) {
-    const to2D = isMyMove
-      ? {
-          105: 0,
-          195: 1,
-          285: 2,
-          375: 3,
-          465: 4,
-          555: 5,
-          645: 6,
-          735: 7,
-        }
-      : {
-          105: 7,
-          195: 6,
-          285: 3,
-          375: 4,
-          465: 3,
-          555: 2,
-          645: 1,
-          735: 0,
+    /*
+      Handles logic to move a chess piece, 
+      and update the chess.js object with move.
+
+      
+    */
+    const to2D = isMyMove ? {
+          97: 0,
+          179: 1,
+          261: 2,
+          343: 3,
+          425: 4,
+          507: 5,
+          589: 6,
+          671: 7,
+        } : {
+          97: 7,
+          179: 6,
+          261: 5,
+          343: 4,
+          425: 3,
+          507: 2,
+          589: 1,
+          671: 0,
         };
 
     let currentBoard = this.getBoard();
     const pieceCoordinates = this.findPiece(currentBoard, pieceId);
 
     if (!pieceCoordinates) {
+      console.log("no piece coordinates")
       return;
     }
 
@@ -146,10 +157,14 @@ class Game {
     const originalPiece = currentBoard[y][x].getPiece();
 
     if (y === toY && x === toX) {
-      return "moved to the same position";
+      return "moved in the same position.";
     }
 
+    // Determine whether the move is a promotion.
     const isPromotion = this.isPawnPromotion(to, pieceId[1]);
+
+    // Update chess.js with new move.
+    // Add a new queen to the board if the move is a promotion.
     const moveAttempt = !isPromotion
       ? this.chess.move({
           from: this.toChessMove([x, y], to2D),
@@ -162,7 +177,6 @@ class Game {
           piece: pieceId[1],
           promotion: "q",
         });
-
     if (moveAttempt === null) {
       return "invalid move";
     }
@@ -208,15 +222,15 @@ class Game {
     }
 
     const checkMate = this.chess.in_checkmate()
-      ? "player has been checkmated"
-      : "has not been checkmated";
-    if (checkMate === "has been checkmated") {
+      ? " has been checkmated"
+      : " has not been checkmated";
+    if (checkMate === " has been checkmated") {
       return this.chess.turn() + checkMate;
     }
+    console.log(checkMate)
 
-    const check = this.chess.in_check() ? "is in check" : "is nt in check";
-    console.log(this.chess.turn() + check);
-    if (check === "is in check") {
+    const check = this.chess.in_check() ? " is in check" : " is not in check";
+    if (check === " is in check") {
       return this.chess.turn() + check;
     }
 
@@ -224,6 +238,7 @@ class Game {
   }
 
   isCastle(moveAttempt) {
+    // Determine and validate a castling attempt.
     const piece = moveAttempt.piece;
     const move = {
       from: moveAttempt.from,
@@ -270,7 +285,11 @@ class Game {
   }
 
   isPawnPromotion(to, piece) {
-    const res = piece === "p" && (to[1] === 105 || to[1] === 735);
+    /*
+      Determine whether a pawn has reached the other side of the board.
+      If increment the number of new queens.
+    */
+    const res = piece === "p" && (to[1] === 97 || to[1] === 671);
     if (res) {
       this.newQueens += 1;
     }
@@ -278,9 +297,12 @@ class Game {
   }
 
   toChessMove(finalPosition, to2D) {
+    /*
+      Convert the co-ordinates passed as arguments
+      into a format readable by the chess.js object.
+    */
     let move;
-
-    if (finalPosition[0] > 100) {
+    if (finalPosition[0] > 82) {
       move =
         this.fromAlphabet[to2D[finalPosition[0]]] +
         this.fromCoordinates[to2D[finalPosition[1]]];
@@ -289,11 +311,18 @@ class Game {
         this.fromAlphabet[finalPosition[0]] +
         this.fromCoordinates[finalPosition[1]];
     }
-
     return move;
   }
 
+  restartGame() {
+    /*
+      Reset chess.js logic when a game is restarted.
+    */
+    this.chess.reset();
+  }
+
   findPiece(board, pieceId) {
+    // Identify an individual piece on the board, by it's piece ID.
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         if (board[i][j].getPieceIdOnThisSquare() === pieceId) {
@@ -304,6 +333,9 @@ class Game {
   }
 
   makeStartingBoard() {
+    // Construct the board.
+
+    // Add squares and place the pieces on appropriate squares.
     const backRank = [
       "rook",
       "knight",
@@ -320,12 +352,14 @@ class Game {
       for (var j = 0; j < 8; j++) {
         // j is horizontal
         // i is vertical
-        const coordinatesOnCanvas = [(j + 1) * 90 + 15, (i + 1) * 90 + 15];
+        const coordinatesOnCanvas = [((j + 1) * 82 + 15), ((i + 1) * 82 + 15)]
         const emptySquare = new Square(j, i, null, coordinatesOnCanvas);
 
         startingChessBoard[i].push(emptySquare);
       }
     }
+
+    // Define the IDs of pieces on the backrank.
     const whiteBackRankId = [
       "wr1",
       "wn1",
@@ -346,53 +380,55 @@ class Game {
       "bn2",
       "br2",
     ];
-    for (var j = 0; j < 8; j += 7) {
-      for (var i = 0; i < 8; i++) {
-        if (j == 0) {
+
+    // Add pieces to squares, with attributes relative to
+    // the color of each player, and the rank of the chessboard.
+    for (j = 0; j < 8; j += 7) {
+      for (i = 0; i < 8; i++) {
+        if (j === 0) {
           // top
-          // console.log(backRank[i])
           startingChessBoard[j][
-            this.thisPlayersColorIsWhite ? i : 7 - i
+            this.playerIsWhite ? i : 7 - i
           ].setPiece(
             new ChessPiece(
               backRank[i],
               false,
-              this.thisPlayersColorIsWhite ? "black" : "white",
-              this.thisPlayersColorIsWhite
+              this.playerIsWhite ? "black" : "white",
+              this.playerIsWhite
                 ? blackBackRankId[i]
                 : whiteBackRankId[i]
             )
           );
           startingChessBoard[j + 1][
-            this.thisPlayersColorIsWhite ? i : 7 - i
+            this.playerIsWhite ? i : 7 - i
           ].setPiece(
             new ChessPiece(
               "pawn",
               false,
-              this.thisPlayersColorIsWhite ? "black" : "white",
-              this.thisPlayersColorIsWhite ? "bp" + i : "wp" + i
+              this.playerIsWhite ? "black" : "white",
+              this.playerIsWhite ? "bp" + i : "wp" + i
             )
           );
         } else {
           // bottom
           startingChessBoard[j - 1][
-            this.thisPlayersColorIsWhite ? i : 7 - i
+            this.playerIsWhite ? i : 7 - i
           ].setPiece(
             new ChessPiece(
               "pawn",
               false,
-              this.thisPlayersColorIsWhite ? "white" : "black",
-              this.thisPlayersColorIsWhite ? "wp" + i : "bp" + i
+              this.playerIsWhite ? "white" : "black",
+              this.playerIsWhite ? "wp" + i : "bp" + i
             )
           );
           startingChessBoard[j][
-            this.thisPlayersColorIsWhite ? i : 7 - i
+            this.playerIsWhite ? i : 7 - i
           ].setPiece(
             new ChessPiece(
               backRank[i],
               false,
-              this.thisPlayersColorIsWhite ? "white" : "black",
-              this.thisPlayersColorIsWhite
+              this.playerIsWhite ? "white" : "black",
+              this.playerIsWhite
                 ? whiteBackRankId[i]
                 : blackBackRankId[i]
             )
