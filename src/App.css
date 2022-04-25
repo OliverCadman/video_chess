@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap');
+
+
 .App {
   text-align: center;
 }
@@ -5,6 +8,31 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.dark-content {
+  background-color: #333;
+  color: #eee;
+}
+
+.light-content {
+  background-color: #fafafa;
+  color: #333;
+}
+
+.light-button {
+  background-color: #333;
+  color: #eee;
+}
+
+.dark-button {
+  background-color: #23b31e;
+  color: #fff;
+}
+
+h1, h2
+button {
+  font-family: "Work Sans", sans-serif;
 }
 
 @media (prefers-reduced-motion: no-preference) {

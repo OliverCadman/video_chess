@@ -52,29 +52,31 @@ class CreateNewGame extends React.Component {
               </React.Fragment>
             ) : (
               <div>
-                <h1
+                <h2
                   style={{
                     textAlign: "center",
-                    marginTop: String(window.innerHeight / 2 - 120) + "px",
+                    marginTop: String(window.innerHeight / 2 - 200) + "px",
+                    fontFamily: "Work Sans, sans-serif",
                   }}
                 >
                   Your Username:
-                </h1>
+                </h2>
                 <input
                   style={{
                     marginLeft: String(window.innerWidth / 2 - 120) + "px",
                     width: "240px",
-                    marginTop: "62px",
+                    marginTop: "30px",
                   }}
                   ref={this.textArea}
                   onInput={this.typingUserName}
                 />
                 <button
-                  className="btn btn-primary"
+                  className="btn light-button"
                   style={{
                     marginLeft: String(window.innerWidth / 2 - 60) + "px",
                     width: "120px",
-                    marginTop: "62px",
+                    marginTop: "30px",
+                    fontSize: "1.25rem"
                   }}
                   disabled={!(this.state.inputText.length > 0)}
                   onClick={() => {

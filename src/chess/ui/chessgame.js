@@ -1,4 +1,5 @@
 import React from "react";
+import {Container, Row, Col} from "react-bootstrap"
 import Game from "../model/chess";
 import Square from "../model/square";
 import { Stage, Layer } from "react-konva";
@@ -305,7 +306,9 @@ const ChessGameWrapper = (props) => {
     });
 
     socket.on("get Opponent UserName", (data) => {
-      console.log("getting opponent's username...");
+      /* Get opponents username to display in UI.
+        Update state to start game when opponent joins the room.
+      */
       if (socket.id !== data.socketId) {
         setOpponentUserName(data.userName);
         setOpponentDidJoinTheGame(true);
@@ -316,13 +319,23 @@ const ChessGameWrapper = (props) => {
   return (
     <React.Fragment>
       {opponentDidJoinTheGame ? (
-        <div>
-          <h4>Opponent: {opponentUserName}</h4>
-          <div style={{ display: "flex ", justifyContent: "center" }}>
-            <ChessGame gameId={gameid} color={color.didRedirect}></ChessGame>
-          </div>
-          <h4>You: {props.myUserName}</h4>
-        </div>
+        <Container>
+          <Row>
+            <Col md={3} style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
+                <h4>
+                  Opponent: {opponentUserName}
+                </h4>
+                <h4>You: {props.myUserName}</h4>
+            </Col>
+            <Col md={9}>
+              <div style={{ display: "flex ", justifyContent: "center" }}>
+                <ChessGame gameId={gameid} color={color.didRedirect}></ChessGame>
+              </div>
+
+            </Col>
+          </Row>
+
+        </Container>
       ) : gameSessionDoesNotExist ? (
         <div>
           <h1 style={{ textAlign: "center", marginTop: "200px" }}> :( </h1>

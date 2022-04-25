@@ -6,6 +6,7 @@ import JoinRoom from "./lobby/lobby";
 import { ColorContext } from "./context/colorcontext";
 import JoinGame from "./lobby/joingame";
 import ChessGame from "./chess/ui/chessgame";
+import DarkModeSwitch from "./themes/ui/dark_mode_switch";
 
 function App() {
   const [didRedirect, setDidRedirect] = useState(false);
@@ -29,6 +30,7 @@ function App() {
         playerDidNotRedirect: playerDidNotRedirect,
       }}
     >
+    <DarkModeSwitch/>
       <Router>
         <Routes>
           <Route
