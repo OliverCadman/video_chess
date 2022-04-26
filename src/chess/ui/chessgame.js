@@ -261,7 +261,7 @@ class ChessGame extends React.Component {
 }
 
 const ChessGameWrapper = (props) => {
-  const domainName = "hhttps://chess-stream.web.app";
+  const domainName = "https://chess-stream.web.app";
   const color = React.useContext(ColorContext);
   console.log("color", color);
   const { gameid } = useParams();
