@@ -9,6 +9,7 @@ import piece_styles from "./piece_styles";
 import { useParams } from "react-router-dom";
 import { ColorContext } from "../../context/colorcontext";
 import CheckMateAlertWrapper from "./checkmate_alert";
+import VideoChat from "../../connections/videochat";
 
 const cloneDeep = require("clone-deep");
 
@@ -260,13 +261,14 @@ class ChessGame extends React.Component {
 }
 
 const ChessGameWrapper = (props) => {
-  const domainName = "http://localhost:8000";
+  const domainName = "hhttps://chess-stream.web.app";
   const color = React.useContext(ColorContext);
   console.log("color", color);
   const { gameid } = useParams();
 
   const [opponentDidJoinTheGame, setOpponentDidJoinTheGame] =
     React.useState(false);
+  const [opponentSocketId, setOpponentSocketId] = React.useState("");
   console.log("OPPONENT JOINED GAME", opponentDidJoinTheGame);
   const [opponentUserName, setOpponentUserName] = React.useState("");
   const [gameSessionDoesNotExist, setGameSessionDoesNotExist] =
@@ -276,7 +278,7 @@ const ChessGameWrapper = (props) => {
     socket.on("playerJoinedRoom", (statusUpdate) => {
       console.log("A new player has joined the room");
       if (socket.id !== statusUpdate.mySocketId) {
-        setOpponentDidJoinTheGame(statusUpdate.mySocketId);
+        setOpponentSocketId(statusUpdate.mySocketId);
       }
     });
 
@@ -319,22 +321,36 @@ const ChessGameWrapper = (props) => {
   return (
     <React.Fragment>
       {opponentDidJoinTheGame ? (
-        <Container style={{marginTop: "3rem"}}>
+        <Container style={{ marginTop: "3rem" }}>
           <Row>
-            <Col md={3} style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
-                <h4>
-                  Opponent: {opponentUserName}
-                </h4>
-                <h4>You: {props.myUserName}</h4>
+            <Col md={3}>
+              <VideoChat
+              opponentUserName={opponentUserName}
+              opponentSocketId={opponentSocketId}
+              mySocketId={socket.id}
+              myUserName={props.myUserName}
+              />
+              <div
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+              <h4>Opponent: {opponentUserName}</h4>
+              <h4>You: {props.myUserName}</h4>
+              </div>
             </Col>
             <Col md={9}>
               <div style={{ display: "flex ", justifyContent: "center" }}>
-                <ChessGame gameId={gameid} color={color.didRedirect}></ChessGame>
+                <ChessGame
+                  gameId={gameid}
+                  color={color.didRedirect}
+                ></ChessGame>
               </div>
-
             </Col>
           </Row>
-
         </Container>
       ) : gameSessionDoesNotExist ? (
         <div>

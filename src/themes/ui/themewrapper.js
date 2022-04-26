@@ -36,9 +36,10 @@ export default function ThemeContextWrapper (props) {
                     document.querySelector("button").classList.remove("light-button");
                     document.querySelector("button").classList.add("dark-button");
                 }
+                break;
             default:
                 document.body.classList.add("dark-content")
-                break
+                break;
         }
     }, [theme]);
 

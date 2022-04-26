@@ -44,7 +44,7 @@ function App() {
               exact
               element={
                 <>
-                  <JoinGame userName={userName} isCreator={true} />,{" "}
+                  <JoinGame userName={userName} isCreator={true} />{" "}
                   <ChessGame myUserName={userName} />
                 </>
               }
