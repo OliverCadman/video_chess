@@ -36,19 +36,22 @@ class CreateNewGame extends React.Component {
     render() {
         return (
           <React.Fragment>
+            <div>
+              <h1 style={{ textAlign: "center" }}>
+                Welcome to Chess Video Time
+              </h1>
+            </div>
             {this.state.didGetUserName ? (
-                <React.Fragment>
-              <Routes>
-                <Route
-                  path="*"
-                  element={
-                    <Navigate replace to={"/game/" + this.state.gameId } />
-                  }
-                />
-              </Routes>
-              <Routes>
-
-              </Routes>
+              <React.Fragment>
+                <Routes>
+                  <Route
+                    path="*"
+                    element={
+                      <Navigate replace to={"/game/" + this.state.gameId} />
+                    }
+                  />
+                </Routes>
+                <Routes></Routes>
               </React.Fragment>
             ) : (
               <div>
@@ -59,7 +62,7 @@ class CreateNewGame extends React.Component {
                     fontFamily: "Work Sans, sans-serif",
                   }}
                 >
-                  Your Username:
+                  Please enter your username:
                 </h2>
                 <input
                   style={{
@@ -76,7 +79,7 @@ class CreateNewGame extends React.Component {
                     marginLeft: String(window.innerWidth / 2 - 60) + "px",
                     width: "120px",
                     marginTop: "30px",
-                    fontSize: "1.25rem"
+                    fontSize: "1.25rem",
                   }}
                   disabled={!(this.state.inputText.length > 0)}
                   onClick={() => {

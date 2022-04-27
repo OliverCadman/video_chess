@@ -17,9 +17,7 @@ const JoinGame = (props) => {
     JoinGameRoom(gameid, props.userName, props.isCreator);
 
     return (
-        <div>
-            <h1 style={{ textAlign: "center"}}>Welcome to Chess Video Time</h1>
-        </div>
+        <></>
     )
 }
 

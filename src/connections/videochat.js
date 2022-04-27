@@ -119,12 +119,34 @@ const VideoChat = (props) => {
         )
     } else if (receivingCall) {
         mainView = (
-          <div>
-            <h3>{props.opponentUserName} is calling you!</h3>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <h3
+              style={{
+                textAlign: "center",
+                marginTop: "2rem",
+                fontFamily: "Work Sans, sans-serif",
+              }}
+            >
+              {props.opponentUserName} is calling you!
+            </h3>
             <button
-            className="btn dark-button"
-            onClick={acceptCall}
-            >Accept</button>
+              className="btn dark-button"
+              onClick={acceptCall}
+              style={{
+                marginTop: "2rem",
+                fontSize: "1.5rem",
+                fontFamily: "Work Sans, sans-serif",
+                color: "#eaeaea",
+              }}
+            >
+              Accept
+            </button>
           </div>
         );
     } else if (isCalling) {
@@ -139,13 +161,14 @@ const VideoChat = (props) => {
               <button
                 className="btn dark-button"
                 onClick={() => {
-                  if (props.opponentDidJoinTheGame) {
-                      initPeer(props.opponentSocketId)
-                  } else {
-                      initPeer(props.mySocketId);
-                  }
+                  initPeer(props.opponentSocketId);
                 }}
-                style={{marginTop: "2rem"}}
+                style={{
+                marginTop: "2rem",
+                fontSize: "1.5rem",
+                fontFamily: "Work Sans, sans-serif",
+                color: "#eaeaea"
+                }}
               >
                 Call {props.opponentUserName}
               </button>

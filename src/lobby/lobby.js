@@ -25,6 +25,13 @@ class JoinRoom extends React.Component {
     render() {
         return (
           <React.Fragment>
+            {!this.state.didGetUserName && (
+              <div>
+                <h1 style={{ textAlign: "center" }}>
+                  Welcome to Chess Video Time
+                </h1>
+              </div>
+            )}
             {this.state.didGetUserName ? (
               <>
                 <JoinGame userName={this.state.inputText} isCreator={false} />
@@ -36,17 +43,17 @@ class JoinRoom extends React.Component {
                   style={{
                     marginTop: String(window.innerHeight / 2 - 200) + "px",
                     fontFamily: "Work Sans, sans-serif",
-                    textAlign: "center"
+                    textAlign: "center",
                   }}
                 >
-                  Your Username:
+                  Please enter your username:
                 </h2>
                 <input
                   style={{
                     marginLeft: String(window.innerWidth / 2 - 120) + "px",
                     width: "240px",
                     marginTop: "30px",
-                    fontFamily: "Work Sans, sans-serif"
+                    fontFamily: "Work Sans, sans-serif",
                   }}
                   ref={this.textArea}
                   onInput={this.handleUserName}
@@ -58,7 +65,7 @@ class JoinRoom extends React.Component {
                     width: "120px",
                     marginTop: "30px",
                     fontFamily: "Work Sans, sans-serif",
-                    fontSize: "1.25rem"
+                    fontSize: "1.25rem",
                   }}
                   disabled={!(this.state.inputText.length > 0)}
                   onClick={() => {
