@@ -214,7 +214,7 @@ class ChessGame extends React.Component {
             <Layer>
               {this.state.gameState.getBoard().map((row, index) => {
                 return (
-                  <React.Fragment>
+                  <React.Fragment key={index}>
                     {row.map((square, index) => {
                       if (square.isOccupied()) {
                         return (
@@ -261,20 +261,17 @@ class ChessGame extends React.Component {
 const ChessGameWrapper = (props) => {
   const domainName = "https://chess-stream.web.app";
   const color = React.useContext(ColorContext);
-  console.log("color", color);
   const { gameid } = useParams();
 
   const [opponentDidJoinTheGame, setOpponentDidJoinTheGame] =
     React.useState(false);
   const [opponentSocketId, setOpponentSocketId] = React.useState("");
-  console.log("OPPONENT JOINED GAME", opponentDidJoinTheGame);
   const [opponentUserName, setOpponentUserName] = React.useState("");
   const [gameSessionDoesNotExist, setGameSessionDoesNotExist] =
     React.useState(false);
 
   React.useEffect(() => {
     socket.on("playerJoinedRoom", (statusUpdate) => {
-      console.log("A new player has joined the room");
       if (socket.id !== statusUpdate.mySocketId) {
         setOpponentSocketId(statusUpdate.mySocketId);
       }
@@ -286,7 +283,6 @@ const ChessGameWrapper = (props) => {
     });
 
     socket.on("start game", (opponentUserName) => {
-      console.log("Start game!");
       if (opponentUserName !== props.myUserName) {
         setOpponentUserName(opponentUserName);
         setOpponentDidJoinTheGame(true);
@@ -297,7 +293,6 @@ const ChessGameWrapper = (props) => {
 
     socket.on("give userName", (socketId) => {
       if (socket.id !== socketId) {
-        console.log("give userName stage: " + props.myUserName);
         socket.emit("received username", {
           userName: props.myUserName,
           gameId: gameid,

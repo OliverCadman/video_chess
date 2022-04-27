@@ -16,7 +16,6 @@ class JoinRoom extends React.Component {
 
     handleUserName = () => {
         const typedText = this.textArea.current.value;
-        console.log(typedText);
         this.setState({
             inputText: typedText
         })
