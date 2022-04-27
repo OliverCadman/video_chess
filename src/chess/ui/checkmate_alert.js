@@ -21,14 +21,14 @@ const CheckMateAlertWrapper = (props) => {
 
     return (
         <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Checkmate!</Modal.Title>
+                <Modal.Header closeButton style={{backgroundColor: "#eee", color: "#aaa"}}>
+                    &nbsp;
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body style={{backgroundColor: "#333"}}>
                     <div style={{textAlign: "center"}}>
-                        <h1>Oops, you have been checkmated.</h1>
+                        <h1>Checkmate.</h1>
                         <div style={{display: "flex", justifyContent: "center"}}>
-                            <Button variant="success" onClick={handleClick}>
+                            <Button variant="success" onClick={handleClick} style={{fontFamily: "Work Sans, sans-serif", cursor: "pointer"}}>
                                     Start a New Game
                             </Button>
                         </div>
