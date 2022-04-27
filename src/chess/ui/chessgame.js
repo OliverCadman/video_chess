@@ -11,8 +11,6 @@ import { ColorContext } from "../../context/colorcontext";
 import CheckMateAlertWrapper from "./checkmate_alert";
 import VideoChat from "../../connections/videochat";
 
-const cloneDeep = require("clone-deep");
-
 const socket = require("../../connections/socket").socket;
 
 class ChessGame extends React.Component {
@@ -323,13 +321,7 @@ const ChessGameWrapper = (props) => {
       {opponentDidJoinTheGame ? (
         <Container style={{ marginTop: "3rem" }}>
           <Row>
-            <Col md={3}>
-              <VideoChat
-              opponentUserName={opponentUserName}
-              opponentSocketId={opponentSocketId}
-              mySocketId={socket.id}
-              myUserName={props.myUserName}
-              />
+            <Col md={2}>
               <div
                 style={{
                   height: "100%",
@@ -338,17 +330,28 @@ const ChessGameWrapper = (props) => {
                   justifyContent: "center",
                 }}
               >
-              <h4>Opponent: {opponentUserName}</h4>
-              <h4>You: {props.myUserName}</h4>
+                <h4 style={{fontFamily: "Work Sans, sans-serif", fontWeight: "bold", color: "#a0a0a0"}}>Opponent:</h4>
+                <p style={{fontFamily: "Work Sans, sans-serif", fontSize: "1.3rem"}}>{opponentUserName}</p>
+                <h4 style={{fontFamily: "Work Sans, sans-serif", fontWeight: "bold", color: "#a0a0a0"}}>You:</h4>
+                <p style={{fontFamily: "Work Sans, sans-serif", fontSize: "1.3rem"}}>{props.myUserName}</p>
               </div>
             </Col>
-            <Col md={9}>
+            <Col md={7}>
               <div style={{ display: "flex ", justifyContent: "center" }}>
                 <ChessGame
                   gameId={gameid}
                   color={color.didRedirect}
                 ></ChessGame>
               </div>
+            </Col>
+            <Col md={3}>
+              <VideoChat
+                opponentUserName={opponentUserName}
+                opponentSocketId={opponentSocketId}
+                mySocketId={socket.id}
+                myUserName={props.myUserName}
+                opponentDidJoinTheGame={opponentDidJoinTheGame}
+              />
             </Col>
           </Row>
         </Container>

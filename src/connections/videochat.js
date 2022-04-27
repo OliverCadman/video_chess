@@ -26,7 +26,7 @@ const VideoChat = (props) => {
            setCaller(data.from);
            setCallerSignal(data.signal);
          });
-    }, [])
+    }, [callerVideo, receiverVideo])
 
     function initPeer(id) {
         setIsCalling(true);
@@ -37,6 +37,7 @@ const VideoChat = (props) => {
         })
 
     peer.on("signal", data => {
+        console.log("signal data", data)
         socket.emit("callUser", {userToCall: id, signalData: data, from: props.mySocketId})
     })
 
@@ -76,16 +77,45 @@ const VideoChat = (props) => {
     let userVideo;
 
     if(stream) {
-        userVideo = (
-            <video playsInline muted ref={callerVideo} autoPlay style={{width: "50%", height: "100%"}}/>
-        );
+        if (callAccepted) {
+            userVideo = (
+                <>
+                    <video
+                        playsInline
+                        muted
+                        ref={receiverVideo}
+                        autoPlay
+                        style={{ width: "100%" }}
+                    />
+                </>
+            );
+        } else {
+            <>
+              <video
+                playsInline
+                muted
+                ref={callerVideo}
+                autoPlay
+                style={{ width: "100%" }}
+              />
+              <video
+                playsInline
+                muted
+                ref={receiverVideo}
+                autoPlay
+                style={{ width: "100%" }}
+              />
+            </>;
+        }
     }
 
     let mainView;
 
     if(callAccepted) {
         mainView = (
-            <video playsInline muted ref={receiverVideo} autoPlay style={{width: "50%", height: "100%"}}/>
+            <>
+            <video playsInline muted ref={receiverVideo} autoPlay style={{width: "100%" }}/>
+            </>
         )
     } else if (receivingCall) {
         mainView = (
@@ -100,27 +130,45 @@ const VideoChat = (props) => {
     } else if (isCalling) {
         mainView = (
             <div>
-                <h3>Current calling {props.opponentUserName}</h3>
+                <h3 style={{fontFamily: "Work Sans, sans-serif", fontSize: "1.5rem", marginTop: "2rem"}}>Calling {props.opponentUserName}</h3>
             </div>
         )
     } else {
         mainView = (
-            <button 
-            className="btn dark-button"
-            onClick={() => {
-                initPeer(props.opponentSocketId);
-            }}
-            >Call {props.opponentUserName}</button>
-        )
+          <>
+              <button
+                className="btn dark-button"
+                onClick={() => {
+                  if (props.opponentDidJoinTheGame) {
+                      initPeer(props.opponentSocketId)
+                  } else {
+                      initPeer(props.mySocketId);
+                  }
+                }}
+                style={{marginTop: "2rem"}}
+              >
+                Call {props.opponentUserName}
+              </button>
+          </>
+        );
     }
 
    
   return (
-      <div>
-          {mainView}
-          {userVideo}
+    <div
+      style={{
+        height: "100%",
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
+        padding: "0 .5rem",
+        boxShadow: "0 0 8px rgba(0, 0, 0, 0.2)",
+      }}
+    >
+      {userVideo}
+      <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+        {mainView}
       </div>
-  )
+    </div>
+  );
 }
 
 export default VideoChat
