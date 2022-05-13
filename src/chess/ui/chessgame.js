@@ -10,6 +10,10 @@ import { useParams } from "react-router-dom";
 import { ColorContext } from "../../context/colorcontext";
 import CheckMateAlertWrapper from "./checkmate_alert";
 import VideoChat from "../../connections/videochat";
+import useSound from "use-sound";
+import move from "../assets/sounds/move.mp3"
+import capture from "../assets/sounds/capture.mp3"
+import genericStartEnd from "../assets/sounds/generic_start_end.mp3"
 
 const socket = require("../../connections/socket").socket;
 
@@ -45,6 +49,7 @@ class ChessGame extends React.Component {
   }
 
   startDragging = (e) => {
+    
     this.setState({
       draggedPieceTargetId: e.target.attrs.id,
     });
@@ -63,6 +68,7 @@ class ChessGame extends React.Component {
     let whiteCheckmated = false;
     let blackCheckmated = false;
     const update = currentGame.movePiece(selectedId, finalPosition, isMyMove);
+    console.log(update)
 
     if (update === "moved in the same position.") {
       this.revertToPreviousState(selectedId);
@@ -76,6 +82,7 @@ class ChessGame extends React.Component {
       } else {
         whiteKingInCheck = true;
       }
+      this.props.move();
     } else if (
       update === "b has been checkmated" ||
       update === "w has been checkmated"
@@ -86,8 +93,13 @@ class ChessGame extends React.Component {
         whiteCheckmated = true;
       }
     } else if (update === "invalid move") {
+      console.log(selectedId)
       this.revertToPreviousState(selectedId);
       return;
+    } else if (update === "move") {
+      this.props.move()
+    } else if (update === "capture") {
+      this.props.capture()
     }
 
     if (isMyMove) {
@@ -123,8 +135,8 @@ class ChessGame extends React.Component {
     const currentGame = this.state.gameState;
     const currentBoard = currentGame.getBoard();
     const finalPosition = this.inferCoord(
-      e.target.x() + 100,
-      e.target.y() + 100,
+      e.target.x() + 83,
+      e.target.y() + 83,
       currentBoard
     );
     const selectedId = this.state.draggedPieceTargetId;
@@ -137,10 +149,11 @@ class ChessGame extends React.Component {
     const temporaryGameState = new Game(true);
     const temporaryBoard = [];
 
-    for (let i = 0; i < 8; i++) {
+    for (var i = 0; i < 8; i++) {
       temporaryBoard.push([]);
-      for (let j = 0; j < 8; j++) {
+      for (var j = 0; j < 8; j++) {
         if (oldBoard[i][j].getPieceIdOnThisSquare() === selectedId) {
+          console.log(selectedId)
           temporaryBoard[i].push(
             new Square(j, i, null, oldBoard[i][j].canvasCoordinates)
           );
@@ -151,6 +164,8 @@ class ChessGame extends React.Component {
     }
 
     temporaryGameState.setBoard(temporaryBoard);
+    // console.log("TEMP GAME STATE", temporaryGameState)
+    // console.log("OLD GAME STATE", oldGameState)
 
     this.setState({
       gameState: temporaryGameState,
@@ -160,6 +175,10 @@ class ChessGame extends React.Component {
     this.setState({
       gameState: oldGameState,
     });
+
+    this.forceUpdate()
+
+    console.log("GAME STATE", this.state.gameState)
   };
 
   inferCoord = (x, y, chessBoard) => {
@@ -269,10 +288,14 @@ const ChessGameWrapper = (props) => {
   const [opponentUserName, setOpponentUserName] = React.useState("");
   const [gameSessionDoesNotExist, setGameSessionDoesNotExist] =
     React.useState(false);
+  const [generic] = useSound(genericStartEnd)
+  const [movePiece] = useSound(move)
+  const [capturePiece] = useSound(capture)
 
   React.useEffect(() => {
     socket.on("playerJoinedRoom", (statusUpdate) => {
       if (socket.id !== statusUpdate.mySocketId) {
+        console.log("player joined room")
         setOpponentSocketId(statusUpdate.mySocketId);
       }
     });
@@ -289,6 +312,9 @@ const ChessGameWrapper = (props) => {
       } else {
         socket.emit("request username", gameid);
       }
+      generic();
+      console.log(generic)
+      console.log("starting game")
     });
 
     socket.on("give userName", (socketId) => {
@@ -298,6 +324,8 @@ const ChessGameWrapper = (props) => {
           gameId: gameid,
         });
       }
+      // generic();
+      console.log("giving username")
     });
 
     socket.on("get Opponent UserName", (data) => {
@@ -308,6 +336,8 @@ const ChessGameWrapper = (props) => {
         setOpponentUserName(data.userName);
         setOpponentDidJoinTheGame(true);
       }
+      generic();
+      console.log("getting opponents username")
     });
   }, [gameid, props.myUserName]);
 
@@ -336,6 +366,9 @@ const ChessGameWrapper = (props) => {
                 <ChessGame
                   gameId={gameid}
                   color={color.didRedirect}
+                  generic={generic}
+                  move={movePiece}
+                  capture={capturePiece}
                 ></ChessGame>
               </div>
             </Col>
