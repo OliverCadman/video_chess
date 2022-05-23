@@ -1,6 +1,6 @@
-import { Chess } from 'chess.js';
-import ChessPiece from './chesspiece';
-import Square from './square';
+import { Chess } from "chess.js";
+import ChessPiece from "./chesspiece";
+import Square from "./square";
 
 class Game {
   constructor(playerIsWhite) {
@@ -9,7 +9,6 @@ class Game {
 
     // chess.js - Validates moves and detects check/checkmate/draw/stalemate.
     this.chess = new Chess();
-
 
     /* Define the co-ordinates of the board relative to player color's perspective */
     this.fromCoordinates = playerIsWhite
@@ -109,7 +108,7 @@ class Game {
   }
 
   setBoard(newBoard) {
-    // Update the state of the board when an 
+    // Update the state of the board when an
     this.chessBoard = newBoard;
   }
 
@@ -120,7 +119,8 @@ class Game {
 
       
     */
-    const to2D = isMyMove ? {
+    const to2D = isMyMove
+      ? {
           97: 0,
           179: 1,
           261: 2,
@@ -129,7 +129,8 @@ class Game {
           507: 5,
           589: 6,
           671: 7,
-        } : {
+        }
+      : {
           97: 7,
           179: 6,
           261: 5,
@@ -144,7 +145,7 @@ class Game {
     const pieceCoordinates = this.findPiece(currentBoard, pieceId);
 
     if (!pieceCoordinates) {
-      console.log("no piece coordinates")
+      console.log("no piece coordinates");
       return;
     }
 
@@ -227,7 +228,7 @@ class Game {
     if (checkMate === " has been checkmated") {
       return this.chess.turn() + checkMate;
     }
-    console.log(checkMate)
+    console.log(checkMate);
 
     const check = this.chess.in_check() ? " is in check" : " is not in check";
     if (check === " is in check") {
@@ -235,6 +236,12 @@ class Game {
     }
 
     this.setBoard(currentBoard);
+
+    if (moveAttempt.flags === "c") {
+      return "capture";
+    } else if (moveAttempt.flags === "b" || moveAttempt.flags === "n" || moveAttempt.flags === "") {
+      return "move";
+    }
   }
 
   isCastle(moveAttempt) {
@@ -352,7 +359,7 @@ class Game {
       for (var j = 0; j < 8; j++) {
         // j is horizontal
         // i is vertical
-        const coordinatesOnCanvas = [((j + 1) * 82 + 15), ((i + 1) * 82 + 15)]
+        const coordinatesOnCanvas = [(j + 1) * 82 + 15, (i + 1) * 82 + 15];
         const emptySquare = new Square(j, i, null, coordinatesOnCanvas);
 
         startingChessBoard[i].push(emptySquare);
@@ -387,21 +394,15 @@ class Game {
       for (i = 0; i < 8; i++) {
         if (j === 0) {
           // top
-          startingChessBoard[j][
-            this.playerIsWhite ? i : 7 - i
-          ].setPiece(
+          startingChessBoard[j][this.playerIsWhite ? i : 7 - i].setPiece(
             new ChessPiece(
               backRank[i],
               false,
               this.playerIsWhite ? "black" : "white",
-              this.playerIsWhite
-                ? blackBackRankId[i]
-                : whiteBackRankId[i]
+              this.playerIsWhite ? blackBackRankId[i] : whiteBackRankId[i]
             )
           );
-          startingChessBoard[j + 1][
-            this.playerIsWhite ? i : 7 - i
-          ].setPiece(
+          startingChessBoard[j + 1][this.playerIsWhite ? i : 7 - i].setPiece(
             new ChessPiece(
               "pawn",
               false,
@@ -411,9 +412,7 @@ class Game {
           );
         } else {
           // bottom
-          startingChessBoard[j - 1][
-            this.playerIsWhite ? i : 7 - i
-          ].setPiece(
+          startingChessBoard[j - 1][this.playerIsWhite ? i : 7 - i].setPiece(
             new ChessPiece(
               "pawn",
               false,
@@ -421,16 +420,12 @@ class Game {
               this.playerIsWhite ? "wp" + i : "bp" + i
             )
           );
-          startingChessBoard[j][
-            this.playerIsWhite ? i : 7 - i
-          ].setPiece(
+          startingChessBoard[j][this.playerIsWhite ? i : 7 - i].setPiece(
             new ChessPiece(
               backRank[i],
               false,
               this.playerIsWhite ? "white" : "black",
-              this.playerIsWhite
-                ? whiteBackRankId[i]
-                : blackBackRankId[i]
+              this.playerIsWhite ? whiteBackRankId[i] : blackBackRankId[i]
             )
           );
         }
@@ -440,4 +435,4 @@ class Game {
   }
 }
 
-export default Game
+export default Game;

@@ -176,7 +176,6 @@ class ChessGame extends React.Component {
       gameState: oldGameState,
     });
 
-    this.forceUpdate()
 
     console.log("GAME STATE", this.state.gameState)
   };

@@ -39,9 +39,12 @@ const Piece = (props) => {
       height={isDragged ? 100 : 82}
       onDragStart={props.onDragStart}
       onDragEnd={props.onDragEnd}
-      fill={
-        (isWhiteKingInCheck ? "rgba(225, 45, 45, 0.5)" : "") ||
-        (isBlackKingInCheck ? "rgba(225, 45, 45, 0.5)" : "")
+      shadowColor={
+        (isWhiteKingInCheck ? "rgba(225, 0, 0, 1)" : "") ||
+        (isBlackKingInCheck ? "rgba(225, 0, 0, 1)" : "")
+      }
+      shadowBlur={
+        (isWhiteKingInCheck ? 25 : 0) || (isBlackKingInCheck ? 25 : 0)
       }
       id={props.id}
     />
