@@ -309,7 +309,7 @@ class Game {
       into a format readable by the chess.js object.
     */
     let move;
-    if (finalPosition[0] > 82) {
+    if (finalPosition[0] > 100) {
       move =
         this.fromAlphabet[to2D[finalPosition[0]]] +
         this.fromCoordinates[to2D[finalPosition[1]]];
@@ -390,8 +390,8 @@ class Game {
 
     // Add pieces to squares, with attributes relative to
     // the color of each player, and the rank of the chessboard.
-    for (j = 0; j < 8; j += 7) {
-      for (i = 0; i < 8; i++) {
+    for (var j = 0; j < 8; j += 7) {
+      for (var i = 0; i < 8; i++) {
         if (j === 0) {
           // top
           startingChessBoard[j][this.playerIsWhite ? i : 7 - i].setPiece(

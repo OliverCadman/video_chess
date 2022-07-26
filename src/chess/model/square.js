@@ -13,7 +13,6 @@ class Square {
 
     setPiece(newPiece) {
         if (newPiece === null && this.pieceOnThisSquare === null) {
-            console.log("hello")
             return;
         } else if (newPiece === null) {
             // If a piece is captured
@@ -23,7 +22,7 @@ class Square {
             // if a player wants to place a piece on this square
             this.pieceOnThisSquare = newPiece;
             newPiece.setSquare(this);
-        } else if (this.getPieceIdOnThisSquare() != newPiece.id && this.pieceOnThisSquare.color != newPiece.color) {
+        } else if (this.getPieceIdOnThisSquare() !== newPiece.id && this.pieceOnThisSquare.color !== newPiece.color) {
             this.pieceOnThisSquare = newPiece;
             newPiece.setSquare(this);
         } else {

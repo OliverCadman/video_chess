@@ -1,5 +1,5 @@
 import React from "react";
-import {Container, Row, Col} from "react-bootstrap"
+import { Container, Row, Col } from "react-bootstrap";
 import Game from "../model/chess";
 import Square from "../model/square";
 import { Stage, Layer } from "react-konva";
@@ -11,21 +11,26 @@ import { ColorContext } from "../../context/colorcontext";
 import CheckMateAlertWrapper from "./checkmate_alert";
 import VideoChat from "../../connections/videochat";
 import useSound from "use-sound";
-import move from "../assets/sounds/move.mp3"
-import capture from "../assets/sounds/capture.mp3"
-import genericStartEnd from "../assets/sounds/generic_start_end.mp3"
+import move from "../assets/sounds/move.mp3";
+import capture from "../assets/sounds/capture.mp3";
+import genericStartEnd from "../assets/sounds/generic_start_end.mp3";
 
 const socket = require("../../connections/socket").socket;
 
 class ChessGame extends React.Component {
-  state = {
-    gameState: new Game(this.props.color),
-    draggedPieceTargetId: "",
-    playerTurnToMoveIsWhite: true,
-    whiteKingInCheck: false,
-    blackKingInCheck: false,
-    checkmate: false,
-  };
+  constructor(props) {
+    super(props);
+    console.log(props)
+    this.state = {
+      gameState: new Game(this.props.color),
+      draggedPieceTargetId: "",
+      playerTurnToMoveIsWhite: true,
+      whiteKingInCheck: false,
+      blackKingInCheck: false,
+      checkmate: false,
+      isDragging: false,
+    };
+  }
 
   componentDidMount() {
     // Register event listeners for socket.io
@@ -49,11 +54,26 @@ class ChessGame extends React.Component {
   }
 
   startDragging = (e) => {
-    
     this.setState({
       draggedPieceTargetId: e.target.attrs.id,
     });
+
+    let board = this.state.gameState.getBoard();
+    let piece = this.state.gameState.findPiece(
+      board,
+      this.state.draggedPieceTargetId
+    );
   };
+
+  componentDidUpdate(prevProps, prevState) {
+    let draggedPiece = this.state.draggedPieceTargetId;
+    let gameBoard = this.state.gameState.getBoard();
+
+    let piece = this.state.gameState.findPiece(
+      gameBoard,
+      draggedPiece
+    )
+  }
 
   movePiece = (selectedId, finalPosition, currentGame, isMyMove) => {
     /**
@@ -68,7 +88,6 @@ class ChessGame extends React.Component {
     let whiteCheckmated = false;
     let blackCheckmated = false;
     const update = currentGame.movePiece(selectedId, finalPosition, isMyMove);
-    console.log(update)
 
     if (update === "moved in the same position.") {
       this.revertToPreviousState(selectedId);
@@ -93,13 +112,12 @@ class ChessGame extends React.Component {
         whiteCheckmated = true;
       }
     } else if (update === "invalid move") {
-      console.log(selectedId)
       this.revertToPreviousState(selectedId);
       return;
     } else if (update === "move") {
-      this.props.move()
+      this.props.move();
     } else if (update === "capture") {
-      this.props.capture()
+      this.props.capture();
     }
 
     if (isMyMove) {
@@ -141,6 +159,9 @@ class ChessGame extends React.Component {
     );
     const selectedId = this.state.draggedPieceTargetId;
     this.movePiece(selectedId, finalPosition, currentGame, true);
+    this.setState({
+      isDragging: false,
+    });
   };
 
   revertToPreviousState = (selectedId) => {
@@ -153,7 +174,6 @@ class ChessGame extends React.Component {
       temporaryBoard.push([]);
       for (var j = 0; j < 8; j++) {
         if (oldBoard[i][j].getPieceIdOnThisSquare() === selectedId) {
-          console.log(selectedId)
           temporaryBoard[i].push(
             new Square(j, i, null, oldBoard[i][j].canvasCoordinates)
           );
@@ -171,13 +191,13 @@ class ChessGame extends React.Component {
       gameState: temporaryGameState,
       draggedPieceTargetId: "",
     });
+    console.log("TEMPORARY GAME STATE", this.state.gameState);
 
     this.setState({
       gameState: oldGameState,
     });
+    console.log("OLD GAME STATE", this.state.gameState)
 
-
-    console.log("GAME STATE", this.state.gameState)
   };
 
   inferCoord = (x, y, chessBoard) => {
@@ -221,11 +241,8 @@ class ChessGame extends React.Component {
         <div
           style={{
             backgroundImage: `url(${Board})`,
-            // backgroundRepeat: "no-repeat",
-            // backgroundSize: "contain",
+            backgroundSize: "100%",
             width: "720px",
-            height: "720px",
-            justifyContent: "center",
           }}
         >
           <Stage width={720} height={720}>
@@ -252,6 +269,7 @@ class ChessGame extends React.Component {
                             playerTurnToMoveIsWhite={
                               this.state.playerTurnToMoveIsWhite
                             }
+                            isDragging={this.state.isDragging}
                             whiteKingInCheck={this.state.whiteKingInCheck}
                             blackKingInCheck={this.state.blackKingInCheck}
                           ></Piece>
@@ -280,21 +298,23 @@ const ChessGameWrapper = (props) => {
   const domainName = "https://chess-stream.web.app";
   const color = React.useContext(ColorContext);
   const { gameid } = useParams();
-
   const [opponentDidJoinTheGame, setOpponentDidJoinTheGame] =
     React.useState(false);
   const [opponentSocketId, setOpponentSocketId] = React.useState("");
   const [opponentUserName, setOpponentUserName] = React.useState("");
   const [gameSessionDoesNotExist, setGameSessionDoesNotExist] =
     React.useState(false);
-  const [generic] = useSound(genericStartEnd)
-  const [movePiece] = useSound(move)
-  const [capturePiece] = useSound(capture)
+  const [resize, setResize] = React.useState(null);
+  const [generic] = useSound(genericStartEnd);
+  const [movePiece] = useSound(move);
+  const [capturePiece] = useSound(capture);
+
+  let alreadyResized = false;
 
   React.useEffect(() => {
     socket.on("playerJoinedRoom", (statusUpdate) => {
       if (socket.id !== statusUpdate.mySocketId) {
-        console.log("player joined room")
+        console.log("player joined room");
         setOpponentSocketId(statusUpdate.mySocketId);
       }
     });
@@ -312,8 +332,7 @@ const ChessGameWrapper = (props) => {
         socket.emit("request username", gameid);
       }
       generic();
-      console.log(generic)
-      console.log("starting game")
+      console.log("starting game");
     });
 
     socket.on("give userName", (socketId) => {
@@ -324,7 +343,7 @@ const ChessGameWrapper = (props) => {
         });
       }
       // generic();
-      console.log("giving username")
+      console.log("giving username");
     });
 
     socket.on("get Opponent UserName", (data) => {
@@ -336,7 +355,7 @@ const ChessGameWrapper = (props) => {
         setOpponentDidJoinTheGame(true);
       }
       generic();
-      console.log("getting opponents username")
+      console.log("getting opponents username");
     });
   }, [gameid, props.myUserName]);
 
@@ -349,20 +368,49 @@ const ChessGameWrapper = (props) => {
               <div
                 style={{
                   height: "100%",
-                  display: "flex",
                   flexDirection: "column",
-                  justifyContent: "center",
                 }}
               >
-                <h4 style={{fontFamily: "Work Sans, sans-serif", fontWeight: "bold", color: "#a0a0a0"}}>Opponent:</h4>
-                <p style={{fontFamily: "Work Sans, sans-serif", fontSize: "1.3rem"}}>{opponentUserName}</p>
-                <h4 style={{fontFamily: "Work Sans, sans-serif", fontWeight: "bold", color: "#a0a0a0"}}>You:</h4>
-                <p style={{fontFamily: "Work Sans, sans-serif", fontSize: "1.3rem"}}>{props.myUserName}</p>
+                <h4
+                  style={{
+                    fontFamily: "Work Sans, sans-serif",
+                    fontWeight: "bold",
+                    color: "#a0a0a0",
+                  }}
+                >
+                  Opponent:
+                </h4>
+                <p
+                  style={{
+                    fontFamily: "Work Sans, sans-serif",
+                    fontSize: "1.3rem",
+                  }}
+                >
+                  {opponentUserName}
+                </p>
+                <h4
+                  style={{
+                    fontFamily: "Work Sans, sans-serif",
+                    fontWeight: "bold",
+                    color: "#a0a0a0",
+                  }}
+                >
+                  You:
+                </h4>
+                <p
+                  style={{
+                    fontFamily: "Work Sans, sans-serif",
+                    fontSize: "1.3rem",
+                  }}
+                >
+                  {props.myUserName}
+                </p>
               </div>
             </Col>
             <Col md={7}>
-              <div style={{ display: "flex ", justifyContent: "center" }}>
+              <div>
                 <ChessGame
+                  // resize={resize}
                   gameId={gameid}
                   color={color.didRedirect}
                   generic={generic}
